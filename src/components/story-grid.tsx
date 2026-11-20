@@ -3,8 +3,8 @@ import StoryCard from "./story-card";
 
 export default function StoryGrid({ stories }: { stories: Story[] }) {
   return (
-    <div className="grid">
-      {stories.map((story) => <StoryCard story={story} key={story.slug} />)}
+    <div className="grid grid-cols-3 gap-5 max-[851px]:gap-[14px] max-[651px]:grid-cols-1">
+      {stories.map((story, index) => <StoryCard story={story} index={index} key={story.slug} />)}
     </div>
   );
 }

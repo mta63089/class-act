@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import ArticleMeta from "@/components/article-meta";
 import { getStories, getStory, imageUrl, sectionUrl, storyUrl } from "@/lib/stories";
 import { SITE_NAME, fullUrl } from "@/lib/site";
+import { article, articleDek, articleHeading, articleImage, articleTitle, container, storyLabel } from "@/lib/ui";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -44,24 +45,24 @@ export default async function StoryPage({ params }: Props) {
   };
 
   return (
-    <div className="wrap">
+    <div className={container}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
-      <article className="article">
-        <Link className="label" href={sectionUrl(story.section)}>{story.section}</Link>
-        <h1>{story.title}</h1>
-        <p className="dek">{story.dek}</p>
-        <p><ArticleMeta story={story} kind /></p>
-        <Image src={imageUrl(story)} alt={story.alt} width={1100} height={700} priority unoptimized />
-        <div className="body">{story.body.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
+      <article className={article}>
+        <Link className={`${storyLabel} no-underline`} href={sectionUrl(story.section)}>{story.section}</Link>
+        <h1 className={articleTitle}>{story.title}</h1>
+        <p className={articleDek}>{story.dek}</p>
+        <p className="mb-[1em]"><ArticleMeta story={story} kind /></p>
+        <Image className={articleImage} src={imageUrl(story)} alt={story.alt} width={1100} height={700} priority unoptimized />
+        <div className="text-[19px] [&_p]:mb-[1em]">{story.body.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
         {story.sources.length > 0 && (
           <>
-            <h2>Sources and further reading</h2>
-            <ul>{story.sources.map(([title, url]) => (
-              <li key={url}><a href={url} target="_blank" rel="noopener noreferrer">{title}</a></li>
+            <h2 className={articleHeading}>Sources and further reading</h2>
+            <ul className="mb-[1em] list-disc pl-10">{story.sources.map(([title, url]) => (
+              <li className="wrap-anywhere" key={url}><a className="underline" href={url} target="_blank" rel="noopener noreferrer">{title}</a></li>
             ))}</ul>
           </>
         )}
-        {story.authorship !== "Staff" && <p className="notice">Written with AI. This piece offers analysis from a leftist, class-focused editorial perspective.</p>}
+        {story.authorship !== "Staff" && <p className="mb-[1em] border-2 border-ink bg-lilac p-[13px] text-[14px]">Written with AI. This piece offers analysis from a leftist, class-focused editorial perspective.</p>}
       </article>
     </div>
   );

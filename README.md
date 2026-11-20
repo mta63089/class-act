@@ -1,4 +1,8 @@
-# The Class Act
+# The Class Act — Next.js + Tailwind CSS v4
+
+This project converts the original static magazine into **Next.js App Router, React, TypeScript, and Tailwind CSS v4**. The magazine layout, graphics, SEO routes, search dialog, typography, and article content remain the same.
+
+## Local development
 
 ```bash
 npm install
@@ -6,32 +10,35 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Visit <http://localhost:3000>.
+Browse http://localhost:3000 and verify the homepage, archive, sections, stories, and search modal.
+
+**Existing GitHub clone:** unzip the contents over your local clone, then run `npm install` to update `package-lock.json` for the new Tailwind packages. The ZIP intentionally does not ship a stale lockfile from before the migration. When you're happy with the local results, commit the changed files and updated lockfile yourself.
+
+## Styling
+
+- Uses the **Tailwind v4 PostCSS plugin**, `@import "tailwindcss"` and CSS-first `@theme` design tokens. No `tailwind.config.js` is needed.
+- All visual layout, spacing, type sizes, backgrounds, borders, and responsive breakpoints are now composed from Tailwind classes in TSX.
+- `src/lib/ui.ts` contains reusable groups of **utility classes** for the layout container, headings, labels, and article typography; this is not a CSS stylesheet.
+- `src/app/globals.css` now holds only the Tailwind import, custom theme palette/font families, and small global focus/touch-accessibility rules.
+- Google Fonts are still loaded through CSS as they were in the existing site, so they require a network connection to render.
 
 ## Routes
 
-- `/` — featured story, wire, latest grid
-- `/archive` — all articles
-- `/sections/[section]` — politics/labor/economy/culture
-- `/stories/[slug]` — article, sources, author label, metadata and JSON-LD
+- `/` — lead article, news wire, latest cards
+- `/archive` — all stories
+- `/sections/[section]` — politics, labor, economy, culture
+- `/stories/[slug]` — story content and sources, metadata and NewsArticle JSON-LD
 - `/about` — editorial policy
-- `/feed.xml`, `/sitemap.xml`, `/robots.txt` — generated from the article data
-- Search — client-side dialog reading article titles, descriptions, and sections
+- `/feed.xml`, `/sitemap.xml`, `/robots.txt` — unchanged
+- Search — client-side dialog for the seeded story collection
 
-## Cloudflare Workers (planned production target)
+## Cloudflare Workers
 
-The repository includes an **OpenNext** adapter configuration, which uses the real Next.js build output. It is not tested against a live Cloudflare account in this handoff. Cloudflare currently recommends the **vinext beta** for new projects; OpenNext is still a documented supported deployment path. You can use OpenNext initially, or run vinext compatibility checks once the CMS and database are added.
+The existing `open-next.config.ts`, `wrangler.jsonc` and scripts remain in place. For a Cloudflare runtime check, use `npm run preview`. This migration does not implement a CMS, database, authentication, scraping, AI writing, or scheduling.
 
-To test in the Workers runtime:
+Set `NEXT_PUBLIC_SITE_URL` to your production URL before building for production so canonical, OG, RSS, and sitemap links are correct.
 
-```bash
-npm run preview
-```
+## Notes
 
-To deploy after your account is connected:
-
-```bash
-npm run deploy
-```
-
-Set `NEXT_PUBLIC_SITE_URL` to your real public domain _before_ running the production build. Otherwise canonical, Open Graph, RSS, and sitemap URLs will target localhost.
+- The provided project was assembled from the matching local source of `mta63089/class-act` without making any GitHub changes.
+- This environment could not install npm dependencies from the registry, so a full Next.js build and pixel comparison must still be validated locally.

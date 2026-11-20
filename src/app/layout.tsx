@@ -25,8 +25,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
-      <body>
-        <a className="skip" href="#main">Skip to content</a>
+      <body className="bg-paper font-sans text-base leading-[1.55] text-ink">
+        <a className="absolute -left-[9999px] focus:top-[10px] focus:left-[10px] focus:z-20 focus:bg-white focus:p-[10px]" href="#main">Skip to content</a>
         <SiteHeader />
         <main id="main">{children}</main>
         <SiteFooter />
