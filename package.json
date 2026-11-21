@@ -15,28 +15,32 @@
     "db:migrate:remote": "wrangler d1 migrations apply class-act-db --remote",
     "db:list": "wrangler d1 list",
     "db:studio": "drizzle-kit studio",
-    "test:editorial": "node --experimental-strip-types --test tests/editorial-rules.test.mjs"
+    "test:editorial": "node --experimental-strip-types --test tests/editorial-rules.test.mjs",
+    "db:tables": "wrangler d1 execute class-act-db --local --command \"SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;\""
   },
   "dependencies": {
-    "@tailwindcss/postcss": "^4.1.0",
-    "drizzle-orm": "^0.44.0",
     "next": "^16.4.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "tailwindcss": "^4.1.0"
+    "tailwindcss": "^4.1.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "drizzle-orm": "^0.44.0",
+    "better-auth": "^1.7.27",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20261121.1",
     "@opennextjs/cloudflare": "latest",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "drizzle-kit": "^0.31.0",
-    "postcss": "^8.4.0",
     "typescript": "^5.9.0",
-    "wrangler": "latest"
+    "wrangler": "latest",
+    "postcss": "^8.4.0",
+    "drizzle-kit": "^0.31.0",
+    "@cloudflare/workers-types": "^5.20261121.1"
   },
   "engines": {
     "node": ">=20.9.0"
-  }
+  },
+  "packageManager": "pnpm@10.20.0"
 }
