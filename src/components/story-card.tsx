@@ -25,18 +25,16 @@ export default function StoryCard({
           height={700}
           unoptimized
         />
-        <div className='px-[18px] pt-4 pb-[19px]'>
+        <div className='px-4.5 pt-4 pb-4.75'>
           <span
             className={`${storyLabel} ${labelColors[index % labelColors.length]}`}
           >
             {story.section}
           </span>
-          <h3
-            className={`${display} my-[10px] text-[33px] group-hover:underline`}
-          >
+          <h3 className={`${display} my-2.5 text-[33px] group-hover:underline`}>
             {story.title}
           </h3>
-          <p className='mb-[10px] text-[15px]'>{story.dek}</p>
+          <p className='mb-2.5 text-[15px]'>{story.dek}</p>
           <ArticleMeta story={story} />
         </div>
       </Link>

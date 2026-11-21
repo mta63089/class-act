@@ -37,18 +37,18 @@ export default async function SiteHeader() {
           THE CLASS <i className='not-italic text-pop-red'>ACT</i>
         </Link>
         <span
-          className='absolute top-[40%] right-[6%] -rotate-[13deg] text-[37px] leading-none text-[#6e46da] max-[651px]:hidden'
+          className='absolute top-[40%] right-[6%] rotate-[-13deg] text-[37px] leading-none text-[#6e46da] max-[651px]:hidden'
           aria-hidden='true'
         >
           ✦
         </span>
-        <p className='mt-[13px] text-[13px] font-extrabold tracking-[.18em] uppercase max-[651px]:text-[10px]'>
+        <p className='mt-3.25 text-[13px] font-extrabold tracking-[.18em] uppercase max-[651px]:text-[10px]'>
           Politics, power &amp; the people who do the work.
         </p>
       </div>
       <nav className='border-y-[3px] border-ink' aria-label='Main navigation'>
         <div
-          className={`${container} flex min-h-[44px] flex-wrap items-center justify-center gap-x-[clamp(14px,3.1vw,45px)] max-[651px]:gap-x-[15px] max-[651px]:gap-y-[6px] max-[651px]:py-[7px]`}
+          className={`${container} flex min-h-11 flex-wrap items-center justify-center gap-x-[clamp(14px,3.1vw,45px)] max-[651px]:gap-x-3.75 max-[651px]:gap-y-1.5 max-[651px]:py-1.75`}
         >
           <Link className={navItem} href='/'>
             Front Page
