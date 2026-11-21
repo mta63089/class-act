@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 /* Tailwind v4: the original magazine palette and typography. */
@@ -16,8 +16,13 @@
 
 /* Shared browser behavior, not layout styling. */
 @layer base {
-  a, button { touch-action: manipulation; }
-  a:focus-visible, button:focus-visible, input:focus-visible {
+  a,
+  button {
+    touch-action: manipulation;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible {
     outline: 3px solid #6b3cf4;
     outline-offset: 4px;
   }

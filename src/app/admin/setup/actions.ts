@@ -1,13 +1,16 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { getDb } from "@/db/client";
 import { cmsUsers } from "@/db/schema";
 import { createAuth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export type SetupState = { error: string };
 
-export async function setupOwner(_previous: SetupState, data: FormData): Promise<SetupState> {
+export async function setupOwner(
+  _previous: SetupState,
+  data: FormData,
+): Promise<SetupState> {
   const setupToken = process.env.CMS_SETUP_TOKEN;
   const submittedToken = String(data.get("setupToken") ?? "");
   if (!setupToken || setupToken.length < 32 || submittedToken !== setupToken) {
@@ -15,15 +18,27 @@ export async function setupOwner(_previous: SetupState, data: FormData): Promise
   }
 
   const name = String(data.get("name") ?? "").trim();
-  const email = String(data.get("email") ?? "").trim().toLowerCase();
+  const email = String(data.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const password = String(data.get("password") ?? "");
-  if (name.length < 2 || name.length > 100 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12) {
-    return { error: "Enter a name, valid email address, and password of at least 12 characters." };
+  if (
+    name.length < 2 ||
+    name.length > 100 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+    password.length < 12
+  ) {
+    return {
+      error:
+        "Enter a name, valid email address, and password of at least 12 characters.",
+    };
   }
 
   const db = await getDb();
   if ((await db.select({ id: cmsUsers.id }).from(cmsUsers).limit(1)).length) {
-    return { error: "The owner account is already configured. Sign in instead." };
+    return {
+      error: "The owner account is already configured. Sign in instead.",
+    };
   }
 
   try {
@@ -40,7 +55,9 @@ export async function setupOwner(_previous: SetupState, data: FormData): Promise
     });
   } catch (error) {
     console.error("Owner setup failed", error);
-    return { error: "Account creation failed. Check the development server log." };
+    return {
+      error: "Account creation failed. Check the development server log.",
+    };
   }
 
   redirect("/admin/login?created=1");

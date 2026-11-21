@@ -14,11 +14,16 @@ export function getPublicationBlockers(
   if (article.status !== "approved" && article.status !== "scheduled") {
     errors.push("The article has not been approved for publication.");
   }
-  if (!article.reviewedById || article.approvedVersion !== article.currentVersion) {
+  if (
+    !article.reviewedById ||
+    article.approvedVersion !== article.currentVersion
+  ) {
     errors.push("The current article revision needs explicit editor approval.");
   }
   if (quoteStatuses.some((status) => status !== "verified")) {
-    errors.push("All included direct quotes must be verified against their sources.");
+    errors.push(
+      "All included direct quotes must be verified against their sources.",
+    );
   }
   return errors;
 }

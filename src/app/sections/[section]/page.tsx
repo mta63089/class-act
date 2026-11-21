@@ -1,13 +1,25 @@
+import StoryGrid from "@/components/story-grid";
+import {
+  getSectionStories,
+  SECTIONS,
+  sectionUrl,
+  type Section,
+} from "@/lib/stories";
+import {
+  container,
+  display,
+  sectionHeading,
+  section as sectionSpacing,
+} from "@/lib/ui";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import StoryGrid from "@/components/story-grid";
-import { getSectionStories, sectionUrl, SECTIONS, type Section } from "@/lib/stories";
-import { container, display, section as sectionSpacing, sectionHeading } from "@/lib/ui";
 
 type Props = { params: Promise<{ section: string }> };
 
 function asSection(value: string): Section | undefined {
-  return SECTIONS.find((section) => section.toLowerCase() === value.toLowerCase());
+  return SECTIONS.find(
+    (section) => section.toLowerCase() === value.toLowerCase(),
+  );
 }
 
 export function generateStaticParams() {
@@ -32,7 +44,14 @@ export default async function SectionPage({ params }: Props) {
   return (
     <section className={`${container} ${sectionSpacing}`}>
       <div className={sectionHeading}>
-        <h2 className={`${display} mb-[9px] text-[60px] uppercase max-[651px]:text-[44px]`}><span aria-hidden="true" className="text-[#b12b23]">✦</span> {section}</h2>
+        <h2
+          className={`${display} mb-[9px] text-[60px] uppercase max-[651px]:text-[44px]`}
+        >
+          <span aria-hidden='true' className='text-[#b12b23]'>
+            ✦
+          </span>{" "}
+          {section}
+        </h2>
       </div>
       <StoryGrid stories={await getSectionStories(section)} />
     </section>

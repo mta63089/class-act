@@ -11,26 +11,20 @@ export const storyLabel =
 export const metadata =
   "text-[12px] font-extrabold uppercase tracking-[.07em] text-[#4e4340]";
 
-export const section =
-  "mx-auto mt-[42px] mb-[55px] max-[651px]:mt-8";
+export const section = "mx-auto mt-[42px] mb-[55px] max-[651px]:mt-8";
 
 export const sectionHeading =
   "mb-[18px] flex items-center justify-between gap-3 border-b-[3px] border-ink";
 
-export const sectionTitle =
-  `${display} mb-[9px] text-[46px] uppercase max-[651px]:text-[37px]`;
+export const sectionTitle = `${display} mb-[9px] text-[46px] uppercase max-[651px]:text-[37px]`;
 
-export const article =
-  "mx-auto mt-[45px] mb-[65px] w-full max-w-[800px]";
+export const article = "mx-auto mt-[45px] mb-[65px] w-full max-w-[800px]";
 
-export const articleTitle =
-  `${display} my-[18px] text-[clamp(53px,8vw,92px)]`;
+export const articleTitle = `${display} my-[18px] text-[clamp(53px,8vw,92px)]`;
 
-export const articleDek =
-  "mb-[1em] text-[22px] leading-[1.4]";
+export const articleDek = "mb-[1em] text-[22px] leading-[1.4]";
 
-export const articleHeading =
-  `${display} mt-[30px] mb-[1em] text-[34px]`;
+export const articleHeading = `${display} mt-[30px] mb-[1em] text-[34px]`;
 
 export const articleImage =
   "my-5 max-h-[460px] w-full border-[3px] border-ink object-cover";
