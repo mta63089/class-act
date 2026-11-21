@@ -42,9 +42,9 @@ export default async function Home() {
       />
       <div className='overflow-hidden border-b-2 border-ink bg-lilac'>
         <div
-          className={`${container} flex min-h-[38px] items-center gap-5 whitespace-nowrap max-[651px]:gap-3`}
+          className={`${container} flex min-h-9.5 items-center gap-5 whitespace-nowrap max-[651px]:gap-3`}
         >
-          <strong className='bg-ink px-[9px] py-[3px] text-[11px] tracking-[.1em] text-white'>
+          <strong className='bg-ink px-2.25 py-0.75 text-[11px] tracking-widest text-white'>
             THE WIRE
           </strong>
           {rest.slice(0, 3).map((story) => (
@@ -66,11 +66,11 @@ export default async function Home() {
         </div>
       </div>
       <article
-        className={`${container} mt-8 grid grid-cols-[1.13fr_.87fr] border-[3px] border-ink bg-hero shadow-[6px_6px_0_#1b1818] max-[651px]:mt-[19px] max-[651px]:grid-cols-1`}
+        className={`${container} mt-8 grid grid-cols-[1.13fr_.87fr] border-[3px] border-ink bg-hero shadow-[6px_6px_0_#1b1818] max-[651px]:mt-4.75 max-[651px]:grid-cols-1`}
       >
         <figure className='flex min-w-0 border-r-[3px] border-ink bg-[#f5ac30] max-[651px]:border-r-0 max-[651px]:border-b-[3px]'>
           <Image
-            className='block h-full min-h-[390px] w-full object-cover max-[851px]:min-h-[310px] max-[651px]:aspect-[1.6] max-[651px]:max-h-[280px] max-[651px]:min-h-0'
+            className='block h-full min-h-97.5 w-full object-cover max-[851px]:min-h-77.5 max-[651px]:aspect-[1.6] max-[651px]:max-h-70 max-[651px]:min-h-0'
             src={imageUrl(lead)}
             alt={lead.alt}
             width={1100}
@@ -79,18 +79,18 @@ export default async function Home() {
             unoptimized
           />
         </figure>
-        <div className='self-center p-[clamp(24px,3vw,49px)] max-[851px]:p-[23px]'>
+        <div className='self-center p-[clamp(24px,3vw,49px)] max-[851px]:p-5.75'>
           <span className={storyLabel}>★ &nbsp; {lead.kind}</span>
           <h1
-            className={`${display} mt-[17px] mb-4 text-[clamp(50px,5.4vw,86px)] max-[851px]:text-[53px] max-[651px]:text-[54px]`}
+            className={`${display} mt-4.25 mb-4 text-[clamp(50px,5.4vw,86px)] max-[851px]:text-[53px] max-[651px]:text-[54px]`}
           >
             {lead.title}
           </h1>
-          <p className='mb-[15px] max-w-[450px] text-[17px]'>{lead.dek}</p>
+          <p className='mb-3.75 max-w-112.5 text-[17px]'>{lead.dek}</p>
           <ArticleMeta story={lead} />
           <div>
             <Link
-              className='mt-[17px] inline-block border-2 border-ink bg-sun px-[15px] py-[9px] text-[13px] font-black text-ink no-underline shadow-[3px_3px_0_#1b1818] transition-[transform,box-shadow,background-color] hover:translate-x-[2px] hover:translate-y-[2px] hover:bg-lilac hover:shadow-[1px_1px_0_#1b1818]'
+              className='mt-4.25 inline-block border-2 border-ink bg-sun px-3.75 py-2.25 text-[13px] font-black text-ink no-underline shadow-[3px_3px_0_#1b1818] transition-[transform,box-shadow,background-color] hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-lilac hover:shadow-[1px_1px_0_#1b1818]'
               href={storyUrl(lead)}
             >
               Read the story

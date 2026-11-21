@@ -123,7 +123,7 @@ export default async function StoryPage({ params }: Props) {
           </>
         )}
         {story.authorship !== "Staff" && (
-          <p className='mb-[1em] border-2 border-ink bg-lilac p-[13px] text-[14px]'>
+          <p className='mb-[1em] border-2 border-ink bg-lilac p-3.25 text-[14px]'>
             Written with AI. This piece offers analysis from a leftist,
             class-focused editorial perspective.
           </p>

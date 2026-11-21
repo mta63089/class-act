@@ -32,7 +32,7 @@ export default function SearchDialog({
   return (
     <>
       <button
-        className={`${className} cursor-pointer border-0 bg-transparent p-[7px]`}
+        className={`${className} cursor-pointer border-0 bg-transparent p-1.75`}
         type='button'
         onClick={() => {
           setQuery("");
@@ -59,10 +59,10 @@ export default function SearchDialog({
             ×
           </button>
         </form>
-        <h2 className={`${display} mb-[14px] text-[36px]`}>Search the paper</h2>
+        <h2 className={`${display} mb-3.5 text-[36px]`}>Search the paper</h2>
         <input
           ref={input}
-          className='w-full border-2 border-ink bg-white p-[10px]'
+          className='w-full border-2 border-ink bg-white p-2.5'
           type='search'
           placeholder='Try rent or labor'
           aria-label='Search articles'

@@ -1,6 +1,87 @@
 [
- {"slug":"follow-the-money","section":"Politics","kind":"Featured essay","title":"Follow the Money. Then Follow the Power.","dek":"What changes when the first question we ask about politics is who owns what? A class-first guide to reading the news.","image":"hero","alt":"A raised fist holding a blue megaphone above a city","date":"2026-11-20","body":["The next time a story is framed as a clash between two tribes, try drawing a different map. Put the employer, landlord, lender, or public agency in the middle. Then draw lines to the people who depend on that institution and the people who get to make its decisions.","That exercise changes the questions. When a city offers a company a tax break, what commitments does the public get in return? When a platform promises flexibility, who can change the pay formula? When prices rise, who can pass their costs on and who has to absorb them?","A leftist reading of the news starts with the idea that workers and tenants deserve a real say over decisions that structure their lives. Race, gender, and citizenship also shape who is exposed to the harshest terms and whose organizing is easiest to punish. A serious class analysis asks how these forms of power work together.","Start with budgets, contracts, ownership records, and the people directly affected. A headline tells you what happened. Those details help you see who had the power to make it happen and who could change the terms."],"sources":[["Federal Reserve, Distributional Financial Accounts","https://www.federalreserve.gov/releases/z1/dataviz/dfa/"]]},
- {"slug":"who-owns-your-time","section":"Labor","kind":"Analysis","title":"Who Owns Your Time at Work?","dek":"Unpredictable schedules can shift the costs of doing business onto the people working the shifts.","image":"labor","alt":"A worker’s hand holding a timecard","date":"2026-11-20","body":["A schedule decides more than when someone clocks in. It sets the hours available for childcare, a second job, classes, or sleep. When a shift changes at the last minute, workers and their families have to reorganize around a decision they often had no say in.","Employers have reasons to adjust staffing as demand changes. The distributional question is who pays for that flexibility. Advance notice, minimum rest between shifts, and compensation for certain last-minute changes can give employers an incentive to plan and workers more control over their time.","New York City’s Fair Workweek rules show what a concrete intervention looks like. Protections vary by sector, and enforcement matters. A practical test for any proposal is whether workers can actually use it when their next paycheck depends on the person making the schedule."],"sources":[["NYC Consumer and Worker Protection, Fair Workweek Law","https://www.nyc.gov/site/dca/workers/workersrights/fastfood-retail-workers.page"]]},
- {"slug":"rent-is-a-power-story","section":"Economy","kind":"Analysis","title":"The Rent Is a Power Story","dek":"The monthly check is the visible part. Ownership, supply, and bargaining power shape everything underneath.","image":"economy","alt":"A small home beside a towering stack of rent paperwork","date":"2026-11-20","body":["Rent is the price of a place to live, and the threat of losing that place gives a lease unusual stakes. A landlord can spread risk across units or investments. A household has one home to lose at a time.","Supply matters, especially where people compete for too few homes near jobs and services. The terms of that supply matter too. Deeply affordable public or nonprofit housing can serve households whose incomes fall below what market-rate construction can profitably serve.","Tenant protections, legal representation, and collective organizing can alter bargaining power in the homes people already occupy. A housing agenda can build more homes while asking who controls them, who can afford them, and who can stay."],"sources":[["Harvard Joint Center for Housing Studies, America’s Rental Housing","https://www.jchs.harvard.edu/americas-rental-housing"]]},
- {"slug":"outrage-is-a-business-model","section":"Culture","kind":"Essay","title":"Outrage Is a Business Model","dek":"A culture-war spectacle can eat the whole news cycle. Who gets paid while everyone fights?","image":"culture","alt":"Two old televisions broadcasting bursts of static","date":"2026-11-20","body":["Outrage can be an efficient way to hold an audience. A short clip, a caricature of an opponent, and a rolling series of reactions can keep the same dispute producing material long after the underlying facts are settled.","Identity and civil rights disputes can carry serious material consequences. To distinguish those stakes from the spectacle, look for a policy, a budget, a contract, or an enforcement decision. Find the people affected and give them room to explain what they stand to lose or gain.","The class question is who has the power to set the terms of the dispute. That can include the platforms selling attention, the employers controlling livelihoods, and the public officials allocating scarce resources. Once those decisions are visible, readers have something more concrete to argue about."],"sources":[["FTC, A Look Behind the Screens","https://www.ftc.gov/reports/look-behind-screens-examining-data-practices-social-media-video-streaming-services"]]}
+  {
+    "alt": "A raised fist holding a blue megaphone above a city",
+    "body": [
+      "The next time a story is framed as a clash between two tribes, try drawing a different map. Put the employer, landlord, lender, or public agency in the middle. Then draw lines to the people who depend on that institution and the people who get to make its decisions.",
+      "That exercise changes the questions. When a city offers a company a tax break, what commitments does the public get in return? When a platform promises flexibility, who can change the pay formula? When prices rise, who can pass their costs on and who has to absorb them?",
+      "A leftist reading of the news starts with the idea that workers and tenants deserve a real say over decisions that structure their lives. Race, gender, and citizenship also shape who is exposed to the harshest terms and whose organizing is easiest to punish. A serious class analysis asks how these forms of power work together.",
+      "Start with budgets, contracts, ownership records, and the people directly affected. A headline tells you what happened. Those details help you see who had the power to make it happen and who could change the terms."
+    ],
+    "date": "2026-11-20",
+    "dek": "What changes when the first question we ask about politics is who owns what? A class-first guide to reading the news.",
+    "image": "hero",
+    "kind": "Featured essay",
+    "section": "Politics",
+    "slug": "follow-the-money",
+    "sources": [
+      [
+        "Federal Reserve, Distributional Financial Accounts",
+        "https://www.federalreserve.gov/releases/z1/dataviz/dfa/"
+      ]
+    ],
+    "title": "Follow the Money. Then Follow the Power."
+  },
+  {
+    "alt": "A worker’s hand holding a timecard",
+    "body": [
+      "A schedule decides more than when someone clocks in. It sets the hours available for childcare, a second job, classes, or sleep. When a shift changes at the last minute, workers and their families have to reorganize around a decision they often had no say in.",
+      "Employers have reasons to adjust staffing as demand changes. The distributional question is who pays for that flexibility. Advance notice, minimum rest between shifts, and compensation for certain last-minute changes can give employers an incentive to plan and workers more control over their time.",
+      "New York City’s Fair Workweek rules show what a concrete intervention looks like. Protections vary by sector, and enforcement matters. A practical test for any proposal is whether workers can actually use it when their next paycheck depends on the person making the schedule."
+    ],
+    "date": "2026-11-20",
+    "dek": "Unpredictable schedules can shift the costs of doing business onto the people working the shifts.",
+    "image": "labor",
+    "kind": "Analysis",
+    "section": "Labor",
+    "slug": "who-owns-your-time",
+    "sources": [
+      [
+        "NYC Consumer and Worker Protection, Fair Workweek Law",
+        "https://www.nyc.gov/site/dca/workers/workersrights/fastfood-retail-workers.page"
+      ]
+    ],
+    "title": "Who Owns Your Time at Work?"
+  },
+  {
+    "alt": "A small home beside a towering stack of rent paperwork",
+    "body": [
+      "Rent is the price of a place to live, and the threat of losing that place gives a lease unusual stakes. A landlord can spread risk across units or investments. A household has one home to lose at a time.",
+      "Supply matters, especially where people compete for too few homes near jobs and services. The terms of that supply matter too. Deeply affordable public or nonprofit housing can serve households whose incomes fall below what market-rate construction can profitably serve.",
+      "Tenant protections, legal representation, and collective organizing can alter bargaining power in the homes people already occupy. A housing agenda can build more homes while asking who controls them, who can afford them, and who can stay."
+    ],
+    "date": "2026-11-20",
+    "dek": "The monthly check is the visible part. Ownership, supply, and bargaining power shape everything underneath.",
+    "image": "economy",
+    "kind": "Analysis",
+    "section": "Economy",
+    "slug": "rent-is-a-power-story",
+    "sources": [
+      [
+        "Harvard Joint Center for Housing Studies, America’s Rental Housing",
+        "https://www.jchs.harvard.edu/americas-rental-housing"
+      ]
+    ],
+    "title": "The Rent Is a Power Story"
+  },
+  {
+    "alt": "Two old televisions broadcasting bursts of static",
+    "body": [
+      "Outrage can be an efficient way to hold an audience. A short clip, a caricature of an opponent, and a rolling series of reactions can keep the same dispute producing material long after the underlying facts are settled.",
+      "Identity and civil rights disputes can carry serious material consequences. To distinguish those stakes from the spectacle, look for a policy, a budget, a contract, or an enforcement decision. Find the people affected and give them room to explain what they stand to lose or gain.",
+      "The class question is who has the power to set the terms of the dispute. That can include the platforms selling attention, the employers controlling livelihoods, and the public officials allocating scarce resources. Once those decisions are visible, readers have something more concrete to argue about."
+    ],
+    "date": "2026-11-20",
+    "dek": "A culture-war spectacle can eat the whole news cycle. Who gets paid while everyone fights?",
+    "image": "culture",
+    "kind": "Essay",
+    "section": "Culture",
+    "slug": "outrage-is-a-business-model",
+    "sources": [
+      [
+        "FTC, A Look Behind the Screens",
+        "https://www.ftc.gov/reports/look-behind-screens-examining-data-practices-social-media-video-streaming-services"
+      ]
+    ],
+    "title": "Outrage Is a Business Model"
+  }
 ]

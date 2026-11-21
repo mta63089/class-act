@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function SiteFooter() {
   return (
-    <footer className='bg-ink py-[30px] text-paper'>
+    <footer className='bg-ink py-7.5 text-paper'>
       <div
         className={`${container} flex items-center justify-between gap-5 max-[651px]:flex-col max-[651px]:items-start`}
       >

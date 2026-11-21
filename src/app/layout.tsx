@@ -32,7 +32,7 @@ export default function RootLayout({
     <html lang='en'>
       <body className='bg-paper font-sans text-base leading-[1.55] text-ink'>
         <a
-          className='absolute -left-[9999px] focus:top-[10px] focus:left-[10px] focus:z-20 focus:bg-white focus:p-[10px]'
+          className='absolute left-[-9999px] focus:top-2.5 focus:left-2.5 focus:z-20 focus:bg-white focus:p-2.5'
           href='#main'
         >
           Skip to content

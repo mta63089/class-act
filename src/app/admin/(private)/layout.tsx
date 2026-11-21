@@ -19,7 +19,7 @@ export default async function PrivateAdminLayout({
 }) {
   const editor = await requireEditor();
   return (
-    <div className='mx-auto max-w-[1300px] px-4 py-8 sm:px-7'>
+    <div className='mx-auto max-w-325 px-4 py-8 sm:px-7'>
       <div className='mb-6 flex flex-wrap items-center justify-between gap-3 border-b-[3px] border-ink pb-4'>
         <div>
           <p className='text-xs font-extrabold tracking-[.16em] uppercase'>

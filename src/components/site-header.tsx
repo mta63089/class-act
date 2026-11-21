@@ -14,7 +14,7 @@ export default async function SiteHeader() {
     <header>
       <div className='bg-ink text-white text-[12px] font-extrabold tracking-[.13em] max-[651px]:text-[10px]'>
         <div
-          className={`${container} flex h-[35px] items-center justify-between max-[651px]:h-[31px]`}
+          className={`${container} flex h-8.75 items-center justify-between max-[651px]:h-7.75`}
         >
           <span className='text-sun'>
             ✦ &nbsp; INDEPENDENT DIGITAL NEWSROOM
@@ -22,9 +22,9 @@ export default async function SiteHeader() {
           <span>{dateLabel(issueDate).toUpperCase()}</span>
         </div>
       </div>
-      <div className={`${container} relative pt-4 pb-[18px] text-center`}>
+      <div className={`${container} relative pt-4 pb-4.5 text-center`}>
         <span
-          className='absolute top-[40%] left-[6%] -rotate-[13deg] text-[49px] leading-none text-pop-red max-[651px]:hidden'
+          className='absolute top-[40%] left-[6%] rotate-[-13deg] text-[49px] leading-none text-pop-red max-[651px]:hidden'
           aria-hidden='true'
         >
           ✷
