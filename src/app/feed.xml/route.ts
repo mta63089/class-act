@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { SITE_DESCRIPTION, SITE_NAME, fullUrl } from "@/lib/site";
 import { getStories, storyUrl } from "@/lib/stories";
 
@@ -16,7 +18,9 @@ function escapeXml(value: string): string {
 }
 
 export async function GET() {
-  const stories = (await getStories()).slice(0, 30);
+  const stories = (await getStories())
+    .filter((story) => story.kind !== "Demo Article")
+    .slice(0, 30);
   const items = stories
     .map((story) => {
       const url = fullUrl(storyUrl(story));

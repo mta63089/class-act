@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import StoryGrid from "@/components/story-grid";
 import {
   getSectionStories,
@@ -22,10 +24,6 @@ function asSection(value: string): Section | undefined {
   );
 }
 
-export function generateStaticParams() {
-  return SECTIONS.map((section) => ({ section: section.toLowerCase() }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { section: slug } = await params;
   const section = asSection(slug);
@@ -45,7 +43,7 @@ export default async function SectionPage({ params }: Props) {
     <section className={`${container} ${sectionSpacing}`}>
       <div className={sectionHeading}>
         <h2
-          className={`${display} mb-2.25 text-[60px] uppercase max-[651px]:text-[44px]`}
+          className={`${display} mb-[9px] text-[60px] uppercase max-[651px]:text-[44px]`}
         >
           <span aria-hidden='true' className='text-[#b12b23]'>
             ✦

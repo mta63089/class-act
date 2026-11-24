@@ -7,9 +7,12 @@ export const dynamic = "force-dynamic";
 
 const nav = [
   ["Review inbox", "/admin/inbox"],
+  ["All articles", "/admin/articles"],
   ["Story ideas", "/admin/ideas"],
   ["Request article", "/admin/new"],
   ["Write manually", "/admin/articles/new"],
+  ["RSS sources", "/admin/sources"],
+  ["Settings", "/admin/settings"],
 ] as const;
 
 export default async function PrivateAdminLayout({

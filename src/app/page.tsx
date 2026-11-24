@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import ArticleMeta from "@/components/article-meta";
 import StoryGrid from "@/components/story-grid";
 import { SITE_DESCRIPTION, SITE_NAME, fullUrl } from "@/lib/site";

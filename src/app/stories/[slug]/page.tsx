@@ -1,12 +1,8 @@
+export const dynamic = "force-dynamic";
+
 import ArticleMeta from "@/components/article-meta";
 import { SITE_NAME, fullUrl } from "@/lib/site";
-import {
-  getStories,
-  getStory,
-  imageUrl,
-  sectionUrl,
-  storyUrl,
-} from "@/lib/stories";
+import { getStory, imageUrl, sectionUrl, storyUrl } from "@/lib/stories";
 import {
   article,
   articleDek,
@@ -23,16 +19,16 @@ import { notFound } from "next/navigation";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export async function generateStaticParams() {
-  return (await getStories()).map((story) => ({ slug: story.slug }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const story = await getStory(slug);
   if (!story) return {};
   return {
     title: story.title,
+    robots:
+      story.kind === "Demo Article"
+        ? { index: false, follow: false }
+        : undefined,
     description: story.dek,
     alternates: { canonical: storyUrl(story) },
     openGraph: {
@@ -71,13 +67,21 @@ export default async function StoryPage({ params }: Props) {
 
   return (
     <div className={container}>
-      <script
-        type='application/ld+json'
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(schema).replace(/</g, "\\u003c"),
-        }}
-      />
+      {story.kind !== "Demo Article" && (
+        <script
+          type='application/ld+json'
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(schema).replace(/</g, "\\u003c"),
+          }}
+        />
+      )}
       <article className={article}>
+        {story.kind === "Demo Article" && (
+          <div className='mb-5 border-[3px] border-pop-red bg-sun p-4 text-sm font-black'>
+            DEMO / PLACEHOLDER STORY — not fact-checked reporting; created to
+            test the publishing system.
+          </div>
+        )}
         <Link
           className={`${storyLabel} no-underline`}
           href={sectionUrl(story.section)}

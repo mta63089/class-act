@@ -1,3 +1,4 @@
+import { addDemoIdeas, turnIdeaIntoBrief } from "@/app/admin/discovery-actions";
 import { listDiscoveredIdeas } from "@/db/queries";
 import Link from "next/link";
 
@@ -14,9 +15,22 @@ export default async function IdeasPage() {
         Story ideas ({ideas.length})
       </h2>
       <p className='mt-2 max-w-2xl text-sm'>
-        Scheduled sources will eventually populate this list. Nothing is scraped
-        or generated automatically yet.
+        RSS sources and demo data can populate this inbox. Convert an idea into
+        a brief, then generate a mock article for review.
       </p>
+      <div className='mt-5 flex flex-wrap gap-3'>
+        <form action={addDemoIdeas}>
+          <button className='border-2 border-ink bg-sun px-4 py-2 text-sm font-black'>
+            Add sample ideas
+          </button>
+        </form>
+        <Link
+          href='/admin/sources'
+          className='border-2 border-ink bg-white px-4 py-2 text-sm font-black no-underline'
+        >
+          Manage RSS sources
+        </Link>
+      </div>
       <div className='mt-6 space-y-4'>
         {ideas.map((idea) => (
           <article
@@ -45,6 +59,12 @@ export default async function IdeasPage() {
                 Original source
               </a>
             )}
+            <form action={turnIdeaIntoBrief} className='mt-4'>
+              <input name='id' value={idea.id} type='hidden' />
+              <button className='border-2 border-ink bg-sun px-3 py-2 text-xs font-black'>
+                Create article brief
+              </button>
+            </form>
           </article>
         ))}
         {!ideas.length && (

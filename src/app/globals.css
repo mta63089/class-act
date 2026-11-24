@@ -26,4 +26,8 @@
     outline: 3px solid #6b3cf4;
     outline-offset: 4px;
   }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }

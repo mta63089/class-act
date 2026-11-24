@@ -1,16 +1,32 @@
+import { generateQueuedArticle } from "@/app/admin/ai-actions";
+import { AdminPendingButton } from "@/components/admin-pending-button";
 import { listGeneratedJobs, listReviewInbox } from "@/db/queries";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function InboxPage() {
-  const [articles, jobs] = await Promise.all([
+export default async function InboxPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ generation?: string }>;
+}) {
+  const [articles, jobs, query] = await Promise.all([
     listReviewInbox(),
     listGeneratedJobs(),
+    searchParams,
   ]);
   return (
-    <div className='grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]'>
+    <div className='grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]'>
       <section>
+        {query.generation === "failed" && (
+          <p
+            role='alert'
+            className='mb-5 border-l-4 border-pop-red bg-card p-4 text-sm font-bold'
+          >
+            Article generation did not complete. Check the failed request in the
+            queue for details.
+          </p>
+        )}
         <div className='mb-4 flex flex-wrap items-center justify-between gap-3'>
           <div>
             <p className='text-xs font-black tracking-widest uppercase'>
@@ -22,10 +38,10 @@ export default async function InboxPage() {
             </h2>
           </div>
           <Link
-            href='/admin/articles/new'
+            href='/admin/new'
             className='border-2 border-ink bg-sun px-4 py-2 text-sm font-black no-underline shadow-[3px_3px_0_#1b1818]'
           >
-            Write an article
+            Generate an article
           </Link>
         </div>
         {articles.length ? (
@@ -61,8 +77,8 @@ export default async function InboxPage() {
               Nothing waiting for review
             </h3>
             <p className='mt-2 text-sm'>
-              New drafts will appear here. You can create a manual draft now;
-              the AI generator is not connected yet.
+              Generate an AI draft or write an article manually to add it to the
+              inbox.
             </p>
           </div>
         )}
@@ -75,11 +91,10 @@ export default async function InboxPage() {
           Requests ({jobs.length})
         </h2>
         <p className='mt-2 text-sm'>
-          Requests are saved to D1, but automatic research and writing are not
-          enabled in this phase.
+          Queued briefs can be generated on demand. Only you can review drafts.
         </p>
-        <ul className='mt-5 space-y-4'>
-          {jobs.slice(0, 8).map((job) => (
+        <ul className='mt-5 space-y-5'>
+          {jobs.slice(0, 12).map((job) => (
             <li key={job.id} className='border-t-2 border-ink pt-3'>
               <span className='text-xs font-extrabold uppercase'>
                 {job.status}
@@ -87,6 +102,32 @@ export default async function InboxPage() {
               <p className='mt-1 text-sm font-bold'>{job.topicPrompt}</p>
               {job.requestedFraming && (
                 <p className='mt-1 text-xs'>Angle: {job.requestedFraming}</p>
+              )}
+              {job.status === "failed" && job.errorMessage && (
+                <p className='mt-2 break-words text-xs font-bold text-red-800'>
+                  {job.errorMessage}
+                </p>
+              )}
+              {(job.status === "queued" ||
+                (job.status === "failed" &&
+                  !job.errorMessage?.includes("already has a draft"))) && (
+                <form action={generateQueuedArticle} className='mt-3'>
+                  <input type='hidden' name='id' value={job.id} />
+                  <AdminPendingButton
+                    idle={
+                      job.status === "failed"
+                        ? "Retry generation"
+                        : "Generate now"
+                    }
+                    busy='Generating…'
+                    className='px-3 py-2 text-xs'
+                  />
+                </form>
+              )}
+              {job.status === "running" && (
+                <p className='mt-2 text-xs'>
+                  Generation started. Refresh to check status.
+                </p>
               )}
             </li>
           ))}

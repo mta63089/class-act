@@ -16,7 +16,10 @@
     "db:list": "wrangler d1 list",
     "db:studio": "drizzle-kit studio",
     "test:editorial": "node --experimental-strip-types --test tests/editorial-rules.test.mjs",
-    "db:tables": "wrangler d1 execute class-act-db --local --command \"SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;\""
+    "db:tables": "wrangler d1 execute class-act-db --local --command \"SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;\"",
+    "test:mock": "node --experimental-strip-types --test tests/mock-editorial.test.mjs",
+    "scheduler:dev": "wrangler dev --config wrangler.scheduler.jsonc --test-scheduled",
+    "scheduler:deploy": "wrangler deploy --config wrangler.scheduler.jsonc"
   },
   "dependencies": {
     "next": "^16.4.6",
@@ -26,7 +29,8 @@
     "@tailwindcss/postcss": "^4.1.0",
     "drizzle-orm": "^0.44.0",
     "better-auth": "^1.7.27",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "fast-xml-parser": "^5.2.5"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "latest",
@@ -41,6 +45,5 @@
   },
   "engines": {
     "node": ">=20.9.0"
-  },
-  "packageManager": "pnpm@10.20.0"
+  }
 }

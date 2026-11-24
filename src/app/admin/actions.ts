@@ -3,6 +3,7 @@
 import { getDb } from "@/db/client";
 import { statusAfterEdit } from "@/db/editorial-rules";
 import {
+  articleQuotes,
   articles,
   articleVersions,
   generationRequests,
@@ -148,6 +149,15 @@ export async function saveManualRevision(form: FormData) {
     throw new Error(
       "The article changed in another session. Refresh before saving.",
     );
+  // Revisions may alter wording/context; require checking quote candidates again.
+  await db
+    .update(articleQuotes)
+    .set({
+      verificationStatus: "unverified",
+      verifiedById: null,
+      verifiedAt: null,
+    })
+    .where(eq(articleQuotes.articleId, id));
   await db.insert(articleVersions).values({
     id: crypto.randomUUID(),
     articleId: id,
