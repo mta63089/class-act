@@ -9,19 +9,37 @@ export type DemoDraft = {
 };
 
 const clean = (value: string) => value.replace(/\s+/g, " ").trim();
-const shorten = (value: string, length: number) => clean(value).slice(0, length);
+const shorten = (value: string, length: number) =>
+  clean(value).slice(0, length);
 
 function sectionFor(topic: string): DemoDraft["section"] {
-  if (/gaming|gta|movie|television|music|entertainment|celebrity|film|streaming/i.test(topic)) return "Culture";
-  if (/union|worker|strike|salary|wage|labor|workplace/i.test(topic)) return "Labor";
-  if (/rent|tax|inflation|economy|housing|wealth|price/i.test(topic)) return "Economy";
+  if (
+    /gaming|gta|movie|television|music|entertainment|celebrity|film|streaming/i.test(
+      topic,
+    )
+  )
+    return "Culture";
+  if (/union|worker|strike|salary|wage|labor|workplace/i.test(topic))
+    return "Labor";
+  if (/rent|tax|inflation|economy|housing|wealth|price/i.test(topic))
+    return "Economy";
   return "Politics";
 }
 
-export function generateMockArticle(input: { topic: string; framing?: string | null; instructions?: string | null }): DemoDraft {
+export function generateMockArticle(input: {
+  topic: string;
+  framing?: string | null;
+  instructions?: string | null;
+}): DemoDraft {
   const topic = shorten(input.topic, 145) || "An unspecified developing story";
-  const angle = shorten(input.framing || "Examine the competing claims and implications", 400);
-  const notes = shorten(input.instructions || "Review relevant primary sources before publication", 450);
+  const angle = shorten(
+    input.framing || "Examine the competing claims and implications",
+    400,
+  );
+  const notes = shorten(
+    input.instructions || "Review relevant primary sources before publication",
+    450,
+  );
   return {
     title: `DEMO: ${topic}`.slice(0, 200),
     dek: `Sample editorial preview about ${topic.slice(0, 100)}. Fictional placeholder content; no claims have been researched.`,
@@ -35,15 +53,23 @@ export function generateMockArticle(input: { topic: string; framing?: string | n
       `EDITORIAL REVIEW REQUIRED. Replace all demonstration prose with verified, original content before treating it as a real news article.`,
     ],
     quotes: [],
-    changeSummary: "Created a deterministic demo draft; no external research performed.",
+    changeSummary:
+      "Created a deterministic demo draft; no external research performed.",
   };
 }
 
 export function reviseMockArticle(input: {
-  title: string; dek: string; section: string; paragraphs: string[]; instruction: string;
+  title: string;
+  dek: string;
+  section: string;
+  paragraphs: string[];
+  instruction: string;
 }): DemoDraft {
-  const section = ["Politics", "Labor", "Economy", "Culture"].includes(input.section)
-    ? input.section as DemoDraft["section"] : "Politics";
+  const section = ["Politics", "Labor", "Economy", "Culture"].includes(
+    input.section,
+  )
+    ? (input.section as DemoDraft["section"])
+    : "Politics";
   const instruction = shorten(input.instruction, 400).replace(/[“”"]/g, "'");
   return {
     title: input.title,
