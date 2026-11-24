@@ -4,7 +4,7 @@ import { AdminPendingButton } from "@/components/admin-pending-button";
 import { editorialMode } from "@/lib/ai-editorial";
 
 export default function RequestArticlePage() {
-  const isMock = editorialMode() === "mock";
+  const live = editorialMode() === "openai";
   const field = "border-2 border-ink bg-white p-3 font-normal";
   return (
     <section className='max-w-3xl'>
@@ -15,9 +15,9 @@ export default function RequestArticlePage() {
         Request an article
       </h2>
       <p className='mt-2 text-sm'>
-        Enter a topic and framing to test the entire CMS workflow. In demo mode,
-        a structured placeholder article is created instantly without any API
-        calls, real claims, or fabricated quotations.
+        {live
+          ? "Save a brief, then choose your research and writing calls separately in the Calibration Lab."
+          : "Create a free placeholder draft to test the CMS, or save a brief for later."}
       </p>
       <form
         action={generateFromBrief}
@@ -30,8 +30,8 @@ export default function RequestArticlePage() {
             rows={4}
             maxLength={3000}
             required
-            placeholder='A story about the reactionary response to GTA 6…'
             className={field}
+            placeholder='A story about…'
           />
         </label>
         <label className='grid gap-1 text-sm font-black'>
@@ -40,8 +40,8 @@ export default function RequestArticlePage() {
             name='framing'
             rows={3}
             maxLength={3000}
-            placeholder='Critique recurring culture-war outrage around entertainment releases; distinguish public statements from speculation.'
             className={field}
+            placeholder='Explore this argument critically…'
           />
         </label>
         <label className='grid gap-1 text-sm font-black'>
@@ -50,32 +50,33 @@ export default function RequestArticlePage() {
             name='instructions'
             rows={3}
             maxLength={5000}
-            placeholder='Look for direct statements by identifiable commentators; identify the date and source of each quote.'
             className={field}
+            placeholder='Find original statements and verify the timeline…'
           />
         </label>
-        <div className='border-l-4 border-pop-red bg-hero p-3 text-xs'>
-          {isMock ? (
-            <>
-              <strong>DEMO MODE:</strong> Generated text is clearly marked as
-              placeholder content. No tokens or live research will be used.
-            </>
-          ) : (
-            <>
-              <strong>LIVE MODE:</strong> Research links and quotations require
-              editorial verification. OpenAI API usage is billed separately.
-            </>
-          )}
+        <div className='border-l-4 border-pop-red bg-hero p-3 text-xs font-bold'>
+          {live
+            ? "LIVE MODE: This button only saves the brief and opens Calibration. It does NOT call OpenAI or incur API charges."
+            : "DEMO MODE: Generates placeholder text without AI API charges."}
         </div>
-        <div className='flex flex-wrap items-center gap-4'>
-          <AdminPendingButton
-            idle={isMock ? "Generate demo draft" : "Research & generate draft"}
-            busy='Creating draft…'
-          />
+        <div className='flex flex-wrap items-center gap-3'>
+          {live ? (
+            <button
+              type='submit'
+              className='border-2 border-ink bg-sun px-5 py-3 text-sm font-black'
+            >
+              Save and open calibration
+            </button>
+          ) : (
+            <AdminPendingButton
+              idle='Generate demo draft'
+              busy='Creating draft…'
+            />
+          )}
           <button
             type='submit'
             formAction={queueManualGeneration}
-            className='border-2 border-ink bg-white px-5 py-3 text-sm font-black hover:bg-lilac'
+            className='border-2 border-ink bg-white px-5 py-3 text-sm font-black'
           >
             Save brief for later
           </button>

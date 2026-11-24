@@ -29,6 +29,7 @@ function getField(form: FormData, name: string, max: number): string {
   return value;
 }
 
+/** The form confirmation is checked server-side; a UI checkbox alone is not a spending guard. */
 function sourceNumber(notes: string | null): number {
   const match = /^Source #(\d+):/.exec(notes || "");
   return match ? Number(match[1]) : 999;
@@ -49,6 +50,12 @@ async function processGeneration(
   id: string,
 ): Promise<{ articleId?: string; failed: boolean }> {
   const editor = await requireEditorForAction();
+  // Always block the legacy paid generation path. Calibration uses separate audited calls.
+  if (editorialMode() === "openai") {
+    throw new Error(
+      "Live generation has moved to /admin/calibration. No API request was made.",
+    );
+  }
   const db = await getDb();
   const [job] = await db
     .update(generationRequests)
@@ -159,6 +166,7 @@ async function processGeneration(
       })
       .where(eq(generationRequests.id, id));
     revalidatePath("/admin/inbox");
+    revalidatePath("/admin/ideas");
     return { articleId, failed: false };
   } catch (error) {
     const description =
@@ -169,12 +177,14 @@ async function processGeneration(
       .set({ status: "failed", errorMessage: description.slice(0, 450) })
       .where(eq(generationRequests.id, id));
     revalidatePath("/admin/inbox");
+    revalidatePath("/admin/ideas");
     return { failed: true };
   }
 }
 
 export async function generateFromBrief(form: FormData) {
   const editor = await requireEditorForAction();
+  // This action only saves a brief in live mode; approval happens per paid stage.
   const topic = getField(form, "topic", 3000);
   const framing = String(form.get("framing") ?? "")
     .trim()
@@ -193,21 +203,28 @@ export async function generateFromBrief(form: FormData) {
     additionalInstructions: instructions || null,
     status: "queued",
   });
+  if (editorialMode() === "openai") redirect(`/admin/calibration/${id}`);
   const result = await processGeneration(id);
   if (result.articleId) redirect(`/admin/articles/${result.articleId}`);
-  redirect("/admin/inbox?generation=failed");
+  redirect("/admin/ideas?generation=failed");
 }
 
 export async function generateQueuedArticle(form: FormData) {
   await requireEditorForAction();
   const id = getField(form, "id", 64);
+  if (editorialMode() === "openai") redirect(`/admin/calibration/${id}`);
   const result = await processGeneration(id);
   if (result.articleId) redirect(`/admin/articles/${result.articleId}`);
-  redirect("/admin/inbox?generation=failed");
+  redirect("/admin/ideas?generation=failed");
 }
 
 export async function reviseWithAi(form: FormData) {
   const editor = await requireEditorForAction();
+  // Revision calibration is a later step; never make an unaudited live revision call.
+  if (editorialMode() === "openai")
+    throw new Error(
+      "Paid revisions are disabled until they have their own audited calibration. No API call was made.",
+    );
   const articleId = getField(form, "id", 64);
   const instruction = getField(form, "instruction", 3000);
   const db = await getDb();
@@ -299,5 +316,6 @@ export async function reviseWithAi(form: FormData) {
   });
   revalidatePath(`/admin/articles/${articleId}`);
   revalidatePath("/admin/inbox");
+  revalidatePath("/admin/ideas");
   redirect(`/admin/articles/${articleId}`);
 }

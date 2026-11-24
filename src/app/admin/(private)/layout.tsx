@@ -9,6 +9,7 @@ const nav = [
   ["Review inbox", "/admin/inbox"],
   ["All articles", "/admin/articles"],
   ["Story ideas", "/admin/ideas"],
+  ["AI Calibration", "/admin/calibration"],
   ["Request article", "/admin/new"],
   ["Write manually", "/admin/articles/new"],
   ["RSS sources", "/admin/sources"],
