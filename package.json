@@ -27,7 +27,7 @@
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.0",
     "@tailwindcss/postcss": "^4.1.0",
-    "drizzle-orm": "^0.44.0",
+    "drizzle-orm": "^0.45.2",
     "better-auth": "^1.7.27",
     "server-only": "^0.0.1",
     "fast-xml-parser": "^5.2.5"
