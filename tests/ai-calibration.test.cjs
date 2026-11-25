@@ -72,7 +72,20 @@ function outputResponse(data) {
   return { ok: true, status: 200, json: async () => data };
 }
 
-test("kill switch prevents all network calls even with a key", async () => {
+test("one AI_PROVIDER setting enables paid calls when the legacy switch is absent", async () => {
+  let called = 0;
+  const mod = load(
+    async () => {
+      called++;
+      return outputResponse(fullResearch);
+    },
+    { AI_PAID_CALLS_ENABLED: undefined },
+  );
+  const result = await mod.executeStage("research", "Research", "An example");
+  assert.equal(result.receipt.status, "completed");
+  assert.equal(called, 1);
+});
+test("explicit legacy false remains a kill switch to avoid surprise charges", async () => {
   let called = 0;
   const mod = load(
     async () => {
@@ -83,11 +96,11 @@ test("kill switch prevents all network calls even with a key", async () => {
   );
   await assert.rejects(
     mod.executeStage("research", "Research", "An example"),
-    /disabled/,
+    /flag must not be false/,
   );
   assert.equal(called, 0);
 });
-test("mock mode prevents all network calls even when paid switch is true", async () => {
+test("mock mode prevents all network calls even when a key is configured", async () => {
   let called = 0;
   const mod = load(
     async () => {
@@ -98,7 +111,7 @@ test("mock mode prevents all network calls even when paid switch is true", async
   );
   await assert.rejects(
     mod.executeStage("writing", "Draft", "An example"),
-    /disabled/,
+    /AI_PROVIDER=openai/,
   );
   assert.equal(called, 0);
 });
@@ -230,15 +243,11 @@ test("draft parser rejects quotes with missing source numbers", () => {
     /unsupported quote/,
   );
 });
-test("manual live generation route does not invoke the old paid generator", () => {
+test("live requests use the one-click resumable pipeline, not calibration redirects", () => {
   const actions = fs.readFileSync(
     path.join(__dirname, "../src/app/admin/ai-actions.ts"),
     "utf8",
   );
-  assert.match(
-    actions,
-    /if \(editorialMode\(\) === "openai"\) redirect\(`\/admin\/calibration\/\$\{id\}`\)/,
-  );
-  assert.match(actions, /Live generation has moved to/);
-  assert.match(actions, /Paid revisions are disabled/);
+  assert.match(actions, /await runLiveGeneration\(id, editor.id\)/);
+  assert.doesNotMatch(actions, /redirect\(`\/admin\/calibration/);
 });
