@@ -1,5 +1,6 @@
 import seed from "@/content/seed.json";
 import { getDb } from "@/db/client";
+import type { ArticleBlock } from "@/db/schema";
 import { articleSources, articles } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
 
@@ -16,6 +17,8 @@ export interface Story {
   alt: string;
   date: string;
   body: string[];
+  blocks?: ArticleBlock[];
+  updatedAt?: string;
   sources: [label: string, url: string][];
   authorship?: "AI" | "Staff";
 }
@@ -65,22 +68,34 @@ export async function getStories(): Promise<Story[]> {
   const content = published.map((item): Story => {
     const section = validSection(item.section);
     const body = item.body.flatMap((block) => {
-      if (block.type === "paragraph") return [block.text];
-      if (block.type === "heading") return [block.text];
+      if (
+        block.type === "paragraph" ||
+        block.type === "heading" ||
+        block.type === "pullquote"
+      )
+        return [block.text];
       if (block.type === "quote")
         return [`“${block.text}” — ${block.attribution}`];
-      return block.items.map((text) => `• ${text}`);
+      if (block.type === "split") return [block.text];
+      if (block.type === "list") return block.items;
+      return [];
     });
+    // A lead image inserted at the start of an article also becomes its SEO/social image.
+    const lead = item.body[0];
+    const leadImage = lead?.type === "image" ? lead : null;
     return {
       slug: item.slug,
       section,
       kind: item.kind,
       title: item.title,
       dek: item.dek,
-      image: item.image || defaultImage(section),
-      alt: item.imageAlt || `Illustration for ${item.section}`,
+      image: leadImage?.src || item.image || defaultImage(section),
+      alt:
+        leadImage?.alt || item.imageAlt || `Illustration for ${item.section}`,
       date: (item.publishedAt || item.createdAt).slice(0, 10),
       body,
+      blocks: item.body,
+      updatedAt: item.updatedAt,
       sources: byArticle.get(item.id) || [],
       authorship: item.createdWithAi ? "AI" : "Staff",
     };
@@ -106,6 +121,8 @@ export function sectionUrl(section: Section): string {
   return `/sections/${section.toLowerCase()}`;
 }
 export function imageUrl(story: Story): string {
+  if (/^https:\/\//i.test(story.image) || story.image.startsWith("/assets/"))
+    return story.image;
   return `/assets/${story.image}.webp`;
 }
 export function dateLabel(date: string): string {

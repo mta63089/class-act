@@ -94,6 +94,17 @@ export async function approveDraft(form: FormData) {
     throw new Error("Cannot approve this article");
   if (!article.title.trim() || !article.dek.trim() || !article.body.length)
     throw new Error("Article is incomplete");
+  if (article.body.some((block) => block.type === "imageIdea"))
+    throw new Error("Resolve or remove all image briefs before approval");
+  const paragraphs = article.body
+    .filter((block) => block.type === "paragraph" || block.type === "split")
+    .map((block) => block.text)
+    .join(" ");
+  for (const block of article.body)
+    if (block.type === "pullquote" && !paragraphs.includes(block.text))
+      throw new Error(
+        "Highlighted pull quotes must repeat an excerpt of the article body",
+      );
   const quotes = await db
     .select({ status: articleQuotes.verificationStatus })
     .from(articleQuotes)

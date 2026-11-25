@@ -43,7 +43,27 @@ export type ArticleBlock =
   | { type: "paragraph"; text: string }
   | { type: "heading"; text: string; level: 2 | 3 }
   | { type: "quote"; quoteId: string; text: string; attribution: string }
-  | { type: "list"; items: string[] };
+  | { type: "list"; items: string[] }
+  | {
+      type: "image";
+      src: string;
+      alt: string;
+      caption: string;
+      credit: string;
+      sourceUrl?: string;
+    }
+  | {
+      type: "split";
+      src: string;
+      alt: string;
+      caption: string;
+      credit: string;
+      text: string;
+      position: "left" | "right";
+      sourceUrl?: string;
+    }
+  | { type: "pullquote"; text: string }
+  | { type: "imageIdea"; prompt: string; placementNote?: string };
 
 export const cmsUsers = sqliteTable(
   "cms_users",

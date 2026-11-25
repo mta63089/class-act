@@ -1,31 +1,32 @@
-import { saveManualRevision } from "@/app/admin/actions";
-import { reviseWithAi } from "@/app/admin/ai-actions";
 import {
   approveDraft,
   publishApproved,
   setQuoteVerification,
 } from "@/app/admin/publishing-actions";
 import { AdminPendingButton } from "@/components/admin-pending-button";
-import { CitedText } from "@/components/cited-text";
+import { ArticleEditor } from "@/components/article-editor";
 import { getDb } from "@/db/client";
 import {
   articleQuotes,
   articles,
   articleSources,
   articleVersions,
-  reviewComments,
+  editorialEvents,
 } from "@/db/schema";
+import { articleWordCount, unfinishedImageIdeas } from "@/lib/article-blocks";
+import {
+  calibrationHistory,
+  getCalibrationDb,
+  type CalibrationCallRow,
+} from "@/lib/calibration-db";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-
-function sourceNumber(notes: string | null): number {
-  const match = /^Source #(\d+):/.exec(notes || "");
-  return match ? Number(match[1]) : 999;
+function sourceNumber(notes: string | null) {
+  return Number(/^Source #(\d+):/.exec(notes || "")?.[1] || 999);
 }
-
 export default async function DraftPage({
   params,
 }: {
@@ -39,356 +40,235 @@ export default async function DraftPage({
     .where(eq(articles.id, id))
     .limit(1);
   if (!article) notFound();
-  const [versions, storedSources, quotes, revisionRequests] = await Promise.all(
-    [
-      db
-        .select()
-        .from(articleVersions)
-        .where(eq(articleVersions.articleId, id))
-        .orderBy(articleVersions.version),
-      db.select().from(articleSources).where(eq(articleSources.articleId, id)),
-      db.select().from(articleQuotes).where(eq(articleQuotes.articleId, id)),
-      db.select().from(reviewComments).where(eq(reviewComments.articleId, id)),
-    ],
-  );
-  const sources = storedSources.sort(
+  const [versions, sources, quotes, events] = await Promise.all([
+    db
+      .select()
+      .from(articleVersions)
+      .where(eq(articleVersions.articleId, id))
+      .orderBy(articleVersions.version),
+    db.select().from(articleSources).where(eq(articleSources.articleId, id)),
+    db.select().from(articleQuotes).where(eq(articleQuotes.articleId, id)),
+    db.select().from(editorialEvents).where(eq(editorialEvents.articleId, id)),
+  ]);
+  const orderedSources = sources.sort(
     (a, b) => sourceNumber(a.notes) - sourceNumber(b.notes),
   );
-  const references = sources.map((source) => ({
-    title: source.title,
-    url: source.url,
-  }));
-  const sourceIndex = new Map(
-    sources.map((source, index) => [source.id, index + 1]),
+  const reference = orderedSources.map((s) => ({ title: s.title, url: s.url }));
+  const quoteSource = new Map(orderedSources.map((s, i) => [s.id, i + 1]));
+  const readOnly = ["published", "archived", "scheduled"].includes(
+    article.status,
   );
-  const allQuotesVerified = quotes.every(
-    (quote) => quote.verificationStatus === "verified",
-  );
-  const editable =
-    !["published", "archived", "scheduled"].includes(article.status) &&
-    article.body.every((block) => block.type === "paragraph");
-  const body = article.body
-    .map((block) => (block.type === "paragraph" ? block.text : ""))
-    .filter(Boolean)
-    .join("\n\n");
-
+  let usage: CalibrationCallRow[] = [];
+  if (article.generationRequestId) {
+    try {
+      usage = await calibrationHistory(
+        await getCalibrationDb(),
+        article.generationRequestId,
+      );
+    } catch (error) {
+      console.warn("Article usage receipts unavailable", error);
+    }
+  }
+  const rewriteCosts = events
+    .filter((e) => e.event === "block_rewrite_request")
+    .map((e) => e.details?.estimatedUsd)
+    .filter((x): x is number => typeof x === "number");
+  const known =
+    usage.reduce((sum, x) => sum + (x.estimated_usd ?? 0), 0) +
+    rewriteCosts.reduce((sum, x) => sum + x, 0);
+  const missing = usage.some((x) => x.estimated_usd === null);
+  const wordCount = articleWordCount(article.body);
+  const unfinished = unfinishedImageIdeas(article.body);
   return (
-    <div className='grid gap-7 lg:grid-cols-[minmax(0,1fr)_360px]'>
-      <section>
-        <Link
-          href='/admin/inbox'
-          className='mb-3 inline-block text-sm font-black underline'
-        >
-          Back to review inbox
-        </Link>
-        <p className='text-xs font-black uppercase tracking-widest'>
-          {article.status.replaceAll("_", " ")} · Version{" "}
-          {article.currentVersion} ·{" "}
-          {article.createdWithAi ? "AI assisted" : "Staff"}
-        </p>
-        <h2 className='font-display text-4xl font-black uppercase'>
-          Review & edit draft
-        </h2>
-        <div className='mt-5 border-[3px] border-ink bg-hero p-6 shadow-[4px_4px_0_#1b1818]'>
-          <p className='text-xs font-black tracking-widest uppercase'>
-            Live draft preview — private
+    <div className='space-y-8'>
+      <header className='flex flex-wrap items-end justify-between gap-4 border-b-[3px] border-ink pb-5'>
+        <div>
+          <Link href='/admin/inbox' className='text-sm font-black underline'>
+            Back to review inbox
+          </Link>
+          <p className='mt-3 text-xs font-black uppercase tracking-widest'>
+            {article.status.replaceAll("_", " ")} · version{" "}
+            {article.currentVersion}
           </p>
-          <h3 className='mt-3 font-display text-5xl font-black uppercase leading-[.95]'>
-            {article.title}
-          </h3>
-          <p className='mt-3 border-b-2 border-ink pb-5 text-base font-semibold'>
-            {article.dek}
+          <h2 className='font-display text-4xl font-black uppercase'>
+            Edit & review story
+          </h2>
+          <p className='mt-1 text-sm'>
+            This is a live-style preview. Changes are saved as a new version
+            before approval.
           </p>
-          <div className='mt-5 space-y-5 text-base leading-relaxed'>
-            {article.body.map((block, i) =>
-              block.type === "paragraph" ? (
-                <p key={i}>
-                  <CitedText text={block.text} sources={references} />
-                </p>
-              ) : block.type === "heading" ? (
-                <h4 key={i} className='font-display text-2xl font-bold'>
-                  {block.text}
-                </h4>
-              ) : block.type === "quote" ? (
-                <blockquote
-                  key={i}
-                  className='border-l-4 border-ink pl-4 italic'
-                >
-                  {block.text} — {block.attribution}
-                </blockquote>
-              ) : (
-                <ul key={i} className='list-disc pl-6'>
-                  {block.items.map((item, j) => (
-                    <li key={j}>{item}</li>
-                  ))}
-                </ul>
-              ),
-            )}
-          </div>
         </div>
-        {article.kind === "Demo Article" && (
-          <div className='mt-5 border-[3px] border-pop-red bg-sun p-4 text-sm font-black'>
-            DEMO / PLACEHOLDER ARTICLE — contains no researched reporting.
-            Intended for testing the CMS only.
-          </div>
-        )}
-        <div className='mt-5 flex flex-wrap items-center gap-3 border-[3px] border-ink bg-card p-4'>
-          {article.status === "approved" ? (
-            <>
-              <p className='text-sm font-bold'>
-                Approved version {article.approvedVersion}. Publish only when
-                content has been reviewed.
-              </p>
-              <form action={publishApproved}>
-                <input type='hidden' name='id' value={article.id} />
-                <AdminPendingButton
-                  idle='Publish approved article'
-                  busy='Publishing…'
-                />
-              </form>
-            </>
-          ) : ["draft", "in_review", "changes_requested"].includes(
-              article.status,
-            ) ? (
-            <>
-              <p className='text-sm font-bold'>
-                {allQuotesVerified
-                  ? "Ready for your editorial approval."
-                  : "Verify all quotes before approval."}
-              </p>
-              <form action={approveDraft}>
-                <input type='hidden' name='id' value={article.id} />
-                <AdminPendingButton
-                  idle='Approve this revision'
-                  busy='Approving…'
-                />
-              </form>
-            </>
-          ) : (
-            <p className='text-sm font-bold'>
-              Article status: {article.status}
+        <div className='border-2 border-ink bg-lilac px-4 py-3 text-right text-xs'>
+          <p className='font-black uppercase'>
+            AI generation and rewrite usage
+          </p>
+          <p className='mt-1 font-display text-3xl font-black'>
+            {usage.length || rewriteCosts.length
+              ? `$${known.toFixed(4)}`
+              : "Not recorded"}
+          </p>
+          <p>
+            {missing
+              ? "Partial estimate; some API usage unknown"
+              : "Estimated USD · recorded attempts"}
+          </p>
+          {usage.map((call) => (
+            <p key={call.id} className='mt-1'>
+              {call.stage}: {call.model} · {call.input_tokens ?? "?"} in /{" "}
+              {call.output_tokens ?? "?"} out ·{" "}
+              {call.estimated_usd === null
+                ? "unknown"
+                : `$${call.estimated_usd.toFixed(4)}`}
+            </p>
+          ))}
+          {rewriteCosts.length > 0 && (
+            <p className='mt-1'>
+              Block rewrites: {rewriteCosts.length} logged calls
             </p>
           )}
         </div>
-        {editable ? (
-          <>
-            <form
-              action={reviseWithAi}
-              className='mt-7 grid gap-3 border-[3px] border-ink bg-lilac p-6 shadow-[4px_4px_0_#1b1818]'
-            >
-              <p className='text-xs font-black uppercase tracking-widest'>
-                AI revision request
+      </header>
+      <ArticleEditor
+        key={article.currentVersion}
+        articleId={article.id}
+        version={article.currentVersion}
+        title={article.title}
+        dek={article.dek}
+        section={article.section}
+        initialBlocks={article.body}
+        sources={reference}
+        coverImage={
+          article.image
+            ? /^https:\/\//.test(article.image)
+              ? article.image
+              : article.image.startsWith("/assets/")
+                ? article.image
+                : `/assets/${article.image}.webp`
+            : `/assets/${({ Politics: "hero", Labor: "labor", Economy: "economy", Culture: "culture" } as Record<string, string>)[article.section] || "hero"}.webp`
+        }
+        coverAlt={article.imageAlt || "Editorial illustration"}
+        readOnly={readOnly}
+      />
+      <div className='grid gap-6 lg:grid-cols-[1fr_1fr]'>
+        <section className='border-[3px] border-ink bg-card p-6 shadow-[4px_4px_0_#1b1818]'>
+          <h3 className='font-display text-3xl font-black uppercase'>
+            Editorial approval
+          </h3>
+          <p className='mt-2 text-sm'>
+            Approval applies to the most recently <strong>saved</strong>{" "}
+            version. If you've made changes in the preview, save them first.
+          </p>
+          <div className='mt-4 space-y-2 text-sm'>
+            <p>
+              {wordCount.toLocaleString()} words · {reference.length} sources ·{" "}
+              {unfinished} image briefs
+            </p>
+            {unfinished > 0 && (
+              <p className='font-bold text-pop-red'>
+                Resolve all image briefs or remove them before approval.
               </p>
-              <h3 className='font-display text-3xl font-black uppercase'>
-                Suggest changes
-              </h3>
-              <p className='text-sm'>
-                Ask for changes to tone, structure, or emphasis. The revised
-                draft becomes a new saved version. No automatic publishing.
-              </p>
-              <input type='hidden' name='id' value={article.id} />
-              <textarea
-                name='instruction'
-                required
-                maxLength={3000}
-                rows={4}
-                className='border-2 border-ink bg-white p-3 text-sm'
-                placeholder='Make the introduction sharper, add context to the counterargument, and keep every source citation…'
-              />
-              <AdminPendingButton
-                idle='Generate revised draft'
-                busy='Revising article…'
-                className='justify-self-start'
-              />
-            </form>
-            <form
-              action={saveManualRevision}
-              className='mt-7 grid gap-4 border-[3px] border-ink bg-card p-6 shadow-[4px_4px_0_#1b1818]'
-            >
-              <h3 className='font-display text-3xl font-black uppercase'>
-                Edit manually
-              </h3>
-              <input type='hidden' name='id' value={article.id} />
-              <label className='grid gap-1 text-sm font-black'>
-                Headline
-                <input
-                  name='title'
-                  required
-                  defaultValue={article.title}
-                  maxLength={200}
-                  className='border-2 border-ink bg-white p-3 font-normal'
-                />
-              </label>
-              <label className='grid gap-1 text-sm font-black'>
-                Description
-                <textarea
-                  name='dek'
-                  required
-                  rows={2}
-                  maxLength={600}
-                  defaultValue={article.dek}
-                  className='border-2 border-ink bg-white p-3 font-normal'
-                />
-              </label>
-              <label className='grid gap-1 text-sm font-black'>
-                Body (blank lines separate paragraphs)
-                <textarea
-                  name='body'
-                  required
-                  rows={18}
-                  maxLength={150000}
-                  defaultValue={body}
-                  className='border-2 border-ink bg-white p-3 font-normal leading-relaxed'
-                />
-              </label>
-              <p className='text-xs'>
-                Keep or update the [1], [2], etc. citation markers when editing.
-                Saving creates another version.
-              </p>
-              <AdminPendingButton
-                idle='Save manual revision'
-                busy='Saving…'
-                className='justify-self-start'
-              />
-            </form>
-          </>
-        ) : (
-          <div className='mt-5 border-2 border-ink bg-lilac p-5 text-sm font-bold'>
-            This article is published, scheduled, archived, or contains
-            structured blocks. It is not editable in this draft editor.
+            )}
+            <p>
+              {quotes.every((q) => q.verificationStatus === "verified")
+                ? "All recorded quote candidates are verified."
+                : "Unverified or rejected quote candidates block approval."}
+            </p>
           </div>
-        )}
-      </section>
-      <aside className='self-start space-y-5'>
-        <div className='border-[3px] border-ink bg-card p-5'>
-          <p className='text-xs font-black uppercase tracking-widest'>
-            Research sources ({sources.length})
-          </p>
-          {sources.length ? (
-            <ol className='mt-3 space-y-3 text-sm'>
-              {sources.map((source, index) => (
-                <li key={source.id} className='wrap-break-word'>
-                  <span className='font-bold'>[{index + 1}] </span>
-                  <a
-                    href={source.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='font-bold underline'
-                  >
-                    {source.title}
-                  </a>
-                  <span className='mt-1 block break-all text-[11px] text-ink/70'>
-                    {source.url}
-                  </span>
-                </li>
-              ))}
-            </ol>
+          {article.status === "approved" ? (
+            <form action={publishApproved} className='mt-5'>
+              <input type='hidden' name='id' value={id} />
+              <AdminPendingButton
+                idle='Publish approved article'
+                busy='Publishing…'
+              />
+            </form>
+          ) : ["draft", "in_review", "changes_requested"].includes(
+              article.status,
+            ) ? (
+            <form action={approveDraft} className='mt-5'>
+              <input type='hidden' name='id' value={id} />
+              <AdminPendingButton
+                idle='Approve saved version'
+                busy='Approving…'
+              />
+            </form>
           ) : (
-            <p className='mt-2 text-sm'>No sources attached.</p>
+            <p className='mt-4 text-sm'>Article is {article.status}.</p>
           )}
-          <p className='mt-4 border-t-2 border-ink pt-3 text-xs'>
-            Source retrieval does not guarantee that a claim or quotation is
-            accurate. Check the original before publishing.
-          </p>
-        </div>
-        <div className='border-[3px] border-ink bg-card p-5'>
-          <p className='text-xs font-black uppercase tracking-widest'>
-            Quotation review ({quotes.length})
-          </p>
-          {quotes.length ? (
-            <ul className='mt-4 space-y-4 text-sm'>
+        </section>
+        <section className='border-[3px] border-ink bg-card p-6 shadow-[4px_4px_0_#1b1818]'>
+          <h3 className='font-display text-3xl font-black uppercase'>
+            Quotation review
+          </h3>
+          {quotes.length === 0 ? (
+            <p className='mt-3 text-sm'>
+              No external direct quotations recorded.
+            </p>
+          ) : (
+            <div className='mt-4 space-y-4'>
               {quotes.map((quote) => (
-                <li key={quote.id} className='border-t border-ink/30 pt-3'>
-                  <p className='font-bold'>
-                    {quote.speaker} ·{" "}
-                    <span className='text-pop-red'>
-                      {quote.verificationStatus}
-                    </span>
-                  </p>
-                  <blockquote className='mt-1 italic'>
+                <div
+                  key={quote.id}
+                  className='border-t-2 border-ink/25 pt-4 text-sm'
+                >
+                  <strong>
+                    {quote.speaker} · {quote.verificationStatus}
+                  </strong>
+                  <blockquote className='my-2 italic'>
                     “{quote.exactText}”
                   </blockquote>
-                  <p className='mt-1 text-xs'>{quote.contextNotes}</p>
+                  <p className='text-xs'>{quote.contextNotes}</p>
                   <a
                     href={quote.originalUrl}
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='mt-1 block text-xs font-bold underline'
+                    className='text-xs font-bold underline'
                   >
-                    Check source [{sourceIndex.get(quote.sourceId || "") ?? "?"}
-                    ]
+                    Verify original source [
+                    {quoteSource.get(quote.sourceId || "") || "?"}]
                   </a>
-                  {!["published", "archived"].includes(article.status) && (
+                  {!readOnly && (
                     <form
                       action={setQuoteVerification}
                       className='mt-2 flex flex-wrap gap-2'
                     >
-                      <input type='hidden' name='id' value={article.id} />
+                      <input type='hidden' name='id' value={id} />
                       <input type='hidden' name='quoteId' value={quote.id} />
                       <button
                         name='verificationStatus'
                         value='verified'
-                        className='border border-ink bg-sun px-2 py-1 text-xs font-bold'
+                        className='border border-ink bg-sun px-3 py-1 text-xs font-bold'
                       >
-                        I verified this quote
+                        Verified
                       </button>
                       <button
                         name='verificationStatus'
                         value='rejected'
-                        className='border border-ink bg-white px-2 py-1 text-xs font-bold'
+                        className='border border-ink bg-white px-3 py-1 text-xs font-bold'
                       >
-                        Reject quotation
+                        Reject
                       </button>
                     </form>
                   )}
-                </li>
+                </div>
               ))}
-            </ul>
-          ) : (
-            <p className='mt-2 text-sm'>
-              No direct quotation candidates recorded.
-            </p>
+            </div>
           )}
-          <p className='mt-4 text-xs font-semibold'>
-            Verify exact wording and context in the original source before
-            marking a quotation verified. Rejected quotations block publication.
-          </p>
+        </section>
+      </div>
+      <section className='border-[3px] border-ink bg-card p-5'>
+        <h3 className='font-display text-3xl font-black uppercase'>
+          Saved versions ({versions.length})
+        </h3>
+        <div className='mt-4 flex flex-wrap gap-3'>
+          {versions.map((v) => (
+            <span key={v.id} className='border border-ink/30 px-3 py-2 text-xs'>
+              <strong>v{v.version}</strong> · {v.origin}
+              <span className='block text-ink/65'>{v.changeSummary}</span>
+            </span>
+          ))}
         </div>
-        <div className='border-[3px] border-ink bg-card p-5'>
-          <p className='text-xs font-black tracking-widest uppercase'>
-            Revision history
-          </p>
-          <ol className='mt-3 space-y-3 text-sm'>
-            {versions.map((version) => (
-              <li key={version.id} className='border-b border-ink/20 pb-2'>
-                <strong>v{version.version}</strong> · {version.origin} ·{" "}
-                {version.createdAt}
-                {version.changeSummary && (
-                  <p className='mt-1 text-xs'>{version.changeSummary}</p>
-                )}
-              </li>
-            ))}
-          </ol>
-          {revisionRequests.filter(
-            (comment) => comment.type === "ai_revision_request",
-          ).length > 0 && (
-            <>
-              <p className='mt-4 text-xs font-black uppercase'>
-                Editor requests
-              </p>
-              <ul className='mt-2 space-y-2 text-sm'>
-                {revisionRequests
-                  .filter((comment) => comment.type === "ai_revision_request")
-                  .map((comment) => (
-                    <li key={comment.id} className='border-l-2 border-ink pl-3'>
-                      v{comment.articleVersion}: {comment.message}
-                    </li>
-                  ))}
-              </ul>
-            </>
-          )}
-        </div>
-      </aside>
+      </section>
     </div>
   );
 }

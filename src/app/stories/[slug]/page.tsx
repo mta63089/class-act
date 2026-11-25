@@ -1,42 +1,56 @@
 export const dynamic = "force-dynamic";
 
+import { ArticleBody } from "@/components/article-body";
 import ArticleMeta from "@/components/article-meta";
+import type { ArticleBlock } from "@/db/schema";
 import { SITE_NAME, fullUrl } from "@/lib/site";
 import { getStory, imageUrl, sectionUrl, storyUrl } from "@/lib/stories";
 import {
   article,
   articleDek,
   articleHeading,
-  articleImage,
   articleTitle,
   container,
   storyLabel,
 } from "@/lib/ui";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 type Props = { params: Promise<{ slug: string }> };
 
+function absolute(url: string) {
+  return url.startsWith("https://") ? url : fullUrl(url);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const story = await getStory(slug);
   if (!story) return {};
+  const image = absolute(imageUrl(story));
   return {
     title: story.title,
+    description: story.dek,
     robots:
       story.kind === "Demo Article"
         ? { index: false, follow: false }
         : undefined,
-    description: story.dek,
     alternates: { canonical: storyUrl(story) },
     openGraph: {
       type: "article",
       title: story.title,
       description: story.dek,
+      url: storyUrl(story),
+      siteName: SITE_NAME,
       publishedTime: `${story.date}T00:00:00Z`,
-      images: [{ url: imageUrl(story), alt: story.alt }],
+      modifiedTime: story.updatedAt || undefined,
+      images: [{ url: image, alt: story.alt }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: story.title,
+      description: story.dek,
+      images: [image],
     },
   };
 }
@@ -45,26 +59,33 @@ export default async function StoryPage({ params }: Props) {
   const { slug } = await params;
   const story = await getStory(slug);
   if (!story) notFound();
-
+  const first = story.blocks?.[0];
+  const lead = first?.type === "image" ? first : null;
+  const body: ArticleBlock[] = story.blocks
+    ? lead
+      ? story.blocks.slice(1)
+      : story.blocks
+    : story.body.map((text) => ({ type: "paragraph" as const, text }));
+  const image = absolute(imageUrl(story));
   const schema = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: story.title,
     description: story.dek,
     datePublished: story.date,
-    image: [fullUrl(imageUrl(story))],
+    dateModified: story.updatedAt || story.date,
+    image: [image],
     mainEntityOfPage: fullUrl(storyUrl(story)),
     articleSection: story.section,
+    inLanguage: "en-US",
     author: {
       "@type": "Organization",
-      name:
-        story.authorship === "Staff" ? SITE_NAME : `${SITE_NAME} AI Newsroom`,
+      name: SITE_NAME,
       url: fullUrl("/about"),
     },
     publisher: { "@type": "Organization", name: SITE_NAME, url: fullUrl("/") },
-    citation: story.sources.map((source) => source[1]),
+    citation: story.sources.map(([, url]) => url),
   };
-
   return (
     <div className={container}>
       {story.kind !== "Demo Article" && (
@@ -77,10 +98,9 @@ export default async function StoryPage({ params }: Props) {
       )}
       <article className={article}>
         {story.kind === "Demo Article" && (
-          <div className='mb-5 border-[3px] border-pop-red bg-sun p-4 text-sm font-black'>
-            DEMO / PLACEHOLDER STORY — not fact-checked reporting; created to
-            test the publishing system.
-          </div>
+          <p className='mb-5 border-[3px] border-pop-red bg-sun p-4 text-sm font-black'>
+            DEMO / PLACEHOLDER STORY — not verified reporting.
+          </p>
         )}
         <Link
           className={`${storyLabel} no-underline`}
@@ -90,32 +110,51 @@ export default async function StoryPage({ params }: Props) {
         </Link>
         <h1 className={articleTitle}>{story.title}</h1>
         <p className={articleDek}>{story.dek}</p>
-        <p className='mb-[1em]'>
+        <p className='mb-5'>
           <ArticleMeta story={story} kind />
         </p>
-        <Image
-          className={articleImage}
-          src={imageUrl(story)}
-          alt={story.alt}
-          width={1100}
-          height={700}
-          priority
-          unoptimized
+        <figure className='mb-9'>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl(story)}
+            alt={story.alt}
+            width={1100}
+            height={700}
+            className='w-full h-auto max-h-155 object-cover border-[3px] border-ink'
+            fetchPriority='high'
+          />
+          {lead && (
+            <figcaption className='mt-2 text-xs text-ink/70'>
+              {lead.caption}
+              {lead.caption ? " · " : ""}
+              {lead.sourceUrl ? (
+                <a
+                  href={lead.sourceUrl}
+                  className='underline'
+                  rel='noopener noreferrer'
+                  target='_blank'
+                >
+                  {lead.credit}
+                </a>
+              ) : (
+                lead.credit
+              )}
+            </figcaption>
+          )}
+        </figure>
+        <ArticleBody
+          blocks={body}
+          sources={story.sources.map(([title, url]) => ({ title, url }))}
         />
-        <div className='text-[19px] [&_p]:mb-[1em]'>
-          {story.body.map((paragraph, index) => (
-            <p key={index}>{paragraph}</p>
-          ))}
-        </div>
         {story.sources.length > 0 && (
-          <>
+          <section aria-label='Sources and further reading' className='mt-12'>
             <h2 className={articleHeading}>Sources and further reading</h2>
-            <ul className='mb-[1em] list-disc pl-10'>
+            <ul className='mb-6 list-disc space-y-2 pl-7'>
               {story.sources.map(([title, url]) => (
-                <li className='wrap-anywhere' key={url}>
+                <li className='wrap-break-word' key={url}>
                   <a
-                    className='underline'
                     href={url}
+                    className='underline'
                     target='_blank'
                     rel='noopener noreferrer'
                   >
@@ -124,12 +163,12 @@ export default async function StoryPage({ params }: Props) {
                 </li>
               ))}
             </ul>
-          </>
+          </section>
         )}
         {story.authorship !== "Staff" && (
-          <p className='mb-[1em] border-2 border-ink bg-lilac p-3.25 text-[14px]'>
-            Written with AI. This piece offers analysis from a leftist,
-            class-focused editorial perspective.
+          <p className='mt-7 border-2 border-ink bg-lilac p-3 text-sm'>
+            AI-assisted editorial analysis. Sources and quotations are subject
+            to editorial verification.
           </p>
         )}
       </article>
